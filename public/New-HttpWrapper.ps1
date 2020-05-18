@@ -31,7 +31,8 @@ function New-HttpWrapper {
     begin {}
 
     process {
-        New-Object -TypeName HttpWrapper -ArgumentList $Scriptblock, $Port, $MaxThread
+        $http_scriptblock = ConvertTo-HttpScriptBlock -ScriptBlock $Scriptblock
+        New-Object -TypeName HttpWrapper -ArgumentList $http_scriptblock, $Port, $MaxThread
     }
 
     end {}
