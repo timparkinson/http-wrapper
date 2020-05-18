@@ -33,7 +33,7 @@ function Start-HttpWrapper {
 
         If ($Wait) {
             Write-Verbose -Message "Waiting for HttpWrapper $($HttpWrapper.Prefix) to finish listening"
-            while ($HttpListener.IsListening) {
+            while ($HttpWapper.Listener.IsListening) {
                 Start-Sleep -Seconds $WaitCheckDelay
             }
             Write-Verbose -Message "HttpWrapper $($HttpWrapper.Prefix) has finished listening"
