@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [Paraneter()]
+    [Parameter()]
     [ValidateSet('Test')]
     [string]$Task = 'Test'
 )
