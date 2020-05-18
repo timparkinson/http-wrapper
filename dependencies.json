@@ -1,0 +1,12 @@
+[
+  {
+    "Scope": "CurrentUser",
+    "Repository=": "PSGallery",
+    "Name": "Pester"
+  },
+  {
+    "Scope": "CurrentUser",
+    "Repository=": "PSGallery",
+    "Name": "PSScriptAnalyzer"
+  }
+]
