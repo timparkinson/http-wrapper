@@ -33,6 +33,28 @@ switch ($Task) {
 
     'Analyze' {
         Import-Module PSScriptAnalyzer
-        Invoke-ScriptAnalyzer -Path *
+        $analysis = Invoke-ScriptAnalyzer -Path * -Verbose:$false
+
+        $errors = $analysis |
+            Where-Object {$_.Severity -eq 'Error'}
+
+        $warnings = $analysis |
+            Where-Object {$_.Severity -eq 'Warning'}
+
+        if (($errors.Count -eq 0) -and ($warnings.Count -eq 0)) {
+            '   PSScriptAnalyzer completed with no errors or warnings'
+        }
+
+        if (@($errors).Count -gt 0) {
+            $errors | 
+                Format-Table -AutoSize
+                Write-Error -Message "$($errors.Count) PSScriptAnalyzer errors found."
+        }
+
+        if (@($warnings).Count -gt 0) {
+            $warnings |
+                Format-Table -AutoSize
+                Write-Warning -Message "$($warnings.Count) PSScriptAnalyzer warnings found."
+        }
     }
 }
