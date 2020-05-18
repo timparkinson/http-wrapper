@@ -13,10 +13,9 @@ $classes = @(
         Get-Item -Path (Join-Path -Path $class_path -ChildPath $_)
     }
 
-$public, $private, $classes |
-    ForEach-Object {
-        . $_.FullName
-    }
+foreach ($import in @($public + $private + $classes)) {
+    . $import.FullName
+}
 
 Export-ModuleMember -Function $public.BaseName
 
