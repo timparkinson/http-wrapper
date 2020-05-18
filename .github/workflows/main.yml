@@ -1,0 +1,17 @@
+name: CI
+
+on:
+    push:
+        branches: [ master ]
+    pull_request:
+        branches: [ master ]
+
+jobs:
+    test:
+        runs-on: mcr.microsoft.com/powershell
+
+        steps:
+        - uses: actions/checkout@v2
+        - name: Test
+            shell: powershell
+            run: Invoke-Pester
