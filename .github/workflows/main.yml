@@ -8,7 +8,11 @@ on:
 
 jobs:
     test:
-        runs-on: mcr.microsoft.com/powershell
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [ ubuntu-latest, windows-latest, macOS-latest ]
 
         steps:
         - uses: actions/checkout@v2
