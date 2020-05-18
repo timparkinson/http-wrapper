@@ -20,7 +20,7 @@ if ($Bootstrap) {
 
     foreach ($dependency in $dependencies) {
         if (-not (Get-Module -Name $dependency.Name)) {
-            Install-Module -Force @dependency
+            Install-Module -Force -Name $dependency.Name -Repository $dependency.Repository -Scope $dependency.Scope
         }
     }
 }
