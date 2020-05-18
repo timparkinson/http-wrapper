@@ -18,9 +18,9 @@ if ($Bootstrap) {
     $dependencies = Get-Content -Path "$PSScriptRoot/dependencies.json" -Raw |
         ConvertFrom-Json
 
-    foreach ($depedency in $dependencies) {
+    foreach ($dependency in $dependencies) {
         if (-not (Get-Module -Name $dependency.Name)) {
-            Install-Module -Force @depedency
+            Install-Module -Force @dependency
         }
     }
 }
@@ -32,6 +32,7 @@ switch ($Task) {
     }
 
     'Analyze' {
-
+        Import-Module PSScriptAnalyzer
+        Invoke-ScriptAnalyzer -Path *
     }
 }

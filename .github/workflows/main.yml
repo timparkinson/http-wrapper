@@ -19,3 +19,11 @@ jobs:
         - name: Test
           shell: pwsh
           run: ./tasks.ps1 -Task Test -Bootstrap
+    analyze:
+            runs-on: [ windows-latest ]
+
+            steps:
+            - uses: actions/checkout@v2
+            - name: Analyze
+              shell: pwsh
+              run: ./tasks.ps1 -Task Analyze -Bootstrap
