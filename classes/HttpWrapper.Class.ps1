@@ -101,24 +101,28 @@
     static [void] HandleRequest (
         [System.IASyncResult]$Result
     ) {
-        # End Async context
-        $state = $Result.AsyncState
-        $context = $state.Listener.EndGetContext($Result)
+        try {
+            # End Async context
+            $state = $Result.AsyncState
+            $context = $state.Listener.EndGetContext($Result)
 
-        # Next connection
-        $state.Listener.BeginGetContext($state.RequestHandler, $state) |
-            Out-Null
+            # Next connection
+            $state.Listener.BeginGetContext($state.RequestHandler, $state) |
+                Out-Null
 
-        # Setup work in runspace
-        $powershell = [System.Management.Automation.PowerShell]::Create()
-        $powershell.RunspacePool = $state.RunspacePool
+            # Setup work in runspace
+            $powershell = [System.Management.Automation.PowerShell]::Create()
+            $powershell.RunspacePool = $state.RunspacePool
 
-        $powershell.AddScript($state.Scriptblock).
-            AddParameter('Request', $context.Request).
-            AddParameter('Response', $context.Response)
+            $powershell.AddScript($state.Scriptblock).
+                AddParameter('Request', $context.Request).
+                AddParameter('Response', $context.Response)
 
-        # Execute the work
-        $powershell.BeginInvoke() |
-            Out-Null
+            # Execute the work
+            $powershell.BeginInvoke() |
+                Out-Null
+        } catch {
+            # A final context is triggered on stop. This is a blunt way of trapping it.
+        }
     }
 }
