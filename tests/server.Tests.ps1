@@ -3,7 +3,7 @@ $module_path = Split-Path -Parent -Path $here
 Import-Module "$module_path/http-wrapper.psd1"
 
 Describe "Server" {
-    $server = New-HttpWrapper -Scriptblock {Start-Sleep -Seconds 1; @{'hello'='world'}}
+    $server = New-HttpWrapper -Scriptblock {Start-Sleep -Seconds 10; @{'hello'='world'}}
     It "creates a server" {
         $server | Should -Not -BeNullOrEmpty
     }
@@ -30,12 +30,16 @@ Describe "Server" {
         $timer = [System.Diagnostics.Stopwatch]::new()
 
         $timer.Start()
-        1..5 | ForEach-Object -Parallel {
-            $result = Invoke-RestMethod -uri http://localhost:8080/
+        $jobs = @()
+        1..5 | ForEach-Object  {
+            $jobs += Start-Job -ScriptBlock {Invoke-RestMethod -Uri http://localhost:8080/}
         }
+        $results = $jobs | Receive-Job -Wait
         $timer.Stop()
-
-        $timer.Elapsed.TotalSeconds | Should -BeLessThan 5
+        $timer.Elapsed.TotalSeconds | Should -BeLessThan 50
+        $results | ForEach-Object {
+            $_.hello | Should -Be 'world'
+        }
     }
 
     It "stops" {
