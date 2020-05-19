@@ -59,7 +59,8 @@ class HttpWrapper {
         }
     
         Write-Verbose -Message "Accepting connections"
-        $context = $this.Listener.BeginGetContext($request_handler, $state)
+        $this.Listener.BeginGetContext($request_handler, $state) |
+            Out-Null
     
     }
     
@@ -81,7 +82,8 @@ class HttpWrapper {
         $context = $state.Listener.EndGetContext($Result)
     
         # Next connection
-        $next_context = $state.Listener.BeginGetContext($state.RequestHandler, $state)
+        $state.Listener.BeginGetContext($state.RequestHandler, $state) |
+            Out-Null
     
         # Setup work in runspace
         $powershell = [System.Management.Automation.PowerShell]::Create()
@@ -91,6 +93,7 @@ class HttpWrapper {
             AddParameter('Response', $context.Response)
 
         # Execute the work
-        $task = $powershell.BeginInvoke() 
+        $powershell.BeginInvoke() |
+            Out-Null
     }
 }
