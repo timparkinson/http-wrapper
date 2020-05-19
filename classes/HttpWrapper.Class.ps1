@@ -89,12 +89,16 @@
 
     [void] Stop (
     ) {
-        Write-Verbose -Message "Closing runspace pool"
-        $this.RunspacePool.Close()
 
         Write-Verbose -Message "Stopping listener"
         $this.Listener.Stop()
         $this.Listener.Prefixes.Remove($this.Prefix)
+
+        Write-Verbose -Message "Pausing"
+        Start-Sleep -Milliseconds 500 
+
+        Write-Verbose -Message "Closing runspace pool"
+        $this.RunspacePool.Close()
     }
 
     static [void] HandleRequest (
