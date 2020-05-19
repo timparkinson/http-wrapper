@@ -2,6 +2,7 @@
     [scriptblock]$Scriptblock
     [int]$Port = 8080
     [int]$MaxThread = 100
+    [int]$NumListenThread = 10
     hidden [System.Net.HttpListener]$Listener
     hidden [System.Management.Automation.Runspaces.RunspacePool]$RunspacePool
     hidden [string]$Prefix
@@ -9,11 +10,13 @@
     HttpWrapper (
         [scriptblock]$Scriptblock,
         [int]$Port,
-        [int]$MaxThread
+        [int]$MaxThread,
+        [int]$NumListenThread
     ) {
         $this.Scriptblock = $Scriptblock
         $this.Port = $Port
         $this.MaxThread = $MaxThread
+        $this.NumListenThread = $NumListenThread
     }
 
     HttpWrapper (
@@ -58,10 +61,30 @@
             Scriptblock = $this.Scriptblock
         }
 
-        Write-Verbose -Message "Accepting connections"
-        $this.Listener.BeginGetContext($request_handler, $state) |
-            Out-Null
+    
+        $listen_scriptblock = {
+            param($state)
 
+            $state.Listener.BeginGetContext($state.RequestHandler, $state) |
+                Out-Null
+            
+            while ($state.Listener.Listening) {
+                Start-Sleep -Milliseconds 500
+            }
+        }
+        
+        Write-Verbose -Message "Starting $($this.NumListenThread) Listen threads" 
+        0..($this.NumListenThread-1) | 
+            ForEach-Object {
+                $powershell = [System.Management.Automation.PowerShell]::Create()
+                $powershell.RunspacePool = $state.RunspacePool
+
+                $powershell.AddScript($listen_scriptblock).
+                    AddParameter('state', $state)
+                
+                $powershell.BeginInvoke() |
+                    Out-Null
+            }
     }
 
     [void] Stop (
@@ -88,6 +111,7 @@
         # Setup work in runspace
         $powershell = [System.Management.Automation.PowerShell]::Create()
         $powershell.RunspacePool = $state.RunspacePool
+
         $powershell.AddScript($state.Scriptblock).
             AddParameter('Request', $context.Request).
             AddParameter('Response', $context.Response)

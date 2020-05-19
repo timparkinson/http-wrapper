@@ -10,12 +10,14 @@
             The port on which to listen.
         .PARAMETER MaxThread
             The maximum number of threads to use.
+        .PARAMETER NumListenThread
+            The number of dispatcher threads to use.
         .OUTPUTS
             [HttpWrapper]
         .EXAMPLE
             New-HttpWrapper -Scripblock {Get-Process} | Start-HttpWrapper
 
-            Creates and starts a new HttpWrapper which will return teh processes on the machine.
+            Creates and starts a new HttpWrapper which will return the processes on the machine.
     #>
     [CmdletBinding()]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
@@ -25,14 +27,16 @@
         [Parameter()]
         [int]$Port = 8080,
         [Parameter()]
-        [int]$MaxThread = 100
+        [int]$MaxThread = 100,
+        [Parameter()]
+        [int]$NumListenThread = 10
     )
 
     begin {}
 
     process {
         $http_scriptblock = ConvertTo-HttpScriptBlock -ScriptBlock $Scriptblock
-        New-Object -TypeName HttpWrapper -ArgumentList $http_scriptblock, $Port, $MaxThread
+        New-Object -TypeName HttpWrapper -ArgumentList $http_scriptblock, $Port, $MaxThread, $NumListenThread
     }
 
     end {}
