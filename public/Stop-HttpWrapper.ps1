@@ -8,7 +8,7 @@ function Stop-HttpWrapper {
             The HttpWrapper to stop.
     #>
     [CmdletBinding()]
-
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
     param(
         [Parameter(
             Mandatory=$true,

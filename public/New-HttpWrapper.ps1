@@ -1,11 +1,11 @@
-function New-HttpWrapper {
+﻿function New-HttpWrapper {
     <#
         .SYNOPSIS
             Creates a new HttpWrapper object.
         .DESCRIPTION
             Creates a new HttpWrapper object.
         .PARAMETER Scriptblock
-            The scriptblock to wrap. 
+            The scriptblock to wrap.
         .PARAMETER Port
             The port on which to listen.
         .PARAMETER MaxThread
@@ -14,11 +14,11 @@ function New-HttpWrapper {
             [HttpWrapper]
         .EXAMPLE
             New-HttpWrapper -Scripblock {Get-Process} | Start-HttpWrapper
-        
+
             Creates and starts a new HttpWrapper which will return teh processes on the machine.
     #>
     [CmdletBinding()]
-
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
     param(
         [Parameter(Mandatory=$true)]
         [scriptblock]$Scriptblock,

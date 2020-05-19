@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [Parameter()]
     [ValidateSet(
@@ -46,7 +46,7 @@ switch ($Task) {
         }
 
         if (@($errors).Count -gt 0) {
-            $errors | 
+            $errors |
                 Format-Table -AutoSize
                 Write-Error -Message "$($errors.Count) PSScriptAnalyzer errors found."
         }

@@ -8,7 +8,7 @@ function Restart-HttpWrapper {
             The HttpWrapper to restart.
     #>
     [CmdletBinding()]
-
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
     param(
         [Parameter(
             Mandatory=$true,

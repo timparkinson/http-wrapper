@@ -1,4 +1,4 @@
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $module_path = Split-Path -Parent -Path $here
 Import-Module "$module_path/http-wrapper.psd1"
 
@@ -21,7 +21,7 @@ Describe "Server" {
     }
 
     It "stops" {
-        Stop-HttpWrapper -HttpWrapper $server 
+        Stop-HttpWrapper -HttpWrapper $server
 
         $server.Listener.IsListening | Should -Be $false
     }

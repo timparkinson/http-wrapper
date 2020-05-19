@@ -12,7 +12,7 @@ function Start-HttpWrapper {
             The number of seconds to wait between checks when waiting.
     #>
     [CmdletBinding()]
-
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
     param(
         [Parameter(
             Mandatory=$true,
