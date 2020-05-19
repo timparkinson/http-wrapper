@@ -31,7 +31,7 @@ Describe "Server" {
 
         $timer.Start()
         1..5 | ForEach-Object  {
-            Start-Job -ScriptBlock {Invoke-RestMethod -Uri http://localhost:8080/} 
+            Start-Job -ScriptBlock {Invoke-RestMethod -Uri http://localhost:8080/}
         }
         $results = Get-Job | Receive-Job -Wait
         $timer.Stop()

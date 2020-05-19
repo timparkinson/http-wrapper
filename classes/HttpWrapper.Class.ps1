@@ -61,27 +61,27 @@
             Scriptblock = $this.Scriptblock
         }
 
-    
+
         $listen_scriptblock = {
             param($state)
 
             $state.Listener.BeginGetContext($state.RequestHandler, $state) |
                 Out-Null
-            
+
             while ($state.Listener.Listening) {
                 Start-Sleep -Milliseconds 500
             }
         }
-        
-        Write-Verbose -Message "Starting $($this.NumListenThread) Listen threads" 
-        0..($this.NumListenThread-1) | 
+
+        Write-Verbose -Message "Starting $($this.NumListenThread) Listen threads"
+        0..($this.NumListenThread-1) |
             ForEach-Object {
                 $powershell = [System.Management.Automation.PowerShell]::Create()
                 $powershell.RunspacePool = $state.RunspacePool
 
                 $powershell.AddScript($listen_scriptblock).
                     AddParameter('state', $state)
-                
+
                 $powershell.BeginInvoke() |
                     Out-Null
             }
