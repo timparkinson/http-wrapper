@@ -3,7 +3,8 @@ param(
     [Parameter()]
     [ValidateSet(
         'Test',
-        'Analyze'
+        'Analyze',
+        'Build'
     )]
     [string]$Task = 'Test',
     [Parameter()]
@@ -55,6 +56,26 @@ switch ($Task) {
             $warnings |
                 Format-Table -AutoSize
                 Write-Warning -Message "$($warnings.Count) PSScriptAnalyzer warnings found."
+        }
+    }
+
+    'Build' {
+        $build_path = Join-Path -Path $PSScriptRoot -ChildPath 'build'
+
+        if (-not (Test-Path -Path $build_path)) {
+            New-Item -ItemType Directory -Path $build_path
+        }
+
+        $name = Split-Path -Leaf -Path $PSScriptRoot
+
+        @(
+            "$name.psm1"
+            "$name.psd1"
+            "public/"
+            "private/"
+            "classes/"
+        ) | ForEach-Object {
+            Copy-Item -Recurse -Path $_ -Destination $build_path
         }
     }
 }
