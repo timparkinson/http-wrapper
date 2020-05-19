@@ -30,11 +30,10 @@ Describe "Server" {
         $timer = [System.Diagnostics.Stopwatch]::new()
 
         $timer.Start()
-        $jobs = @()
         1..5 | ForEach-Object  {
-            $jobs += Start-Job -ScriptBlock {Invoke-RestMethod -Uri http://localhost:8080/}
+            Start-Job -ScriptBlock {Invoke-RestMethod -Uri http://localhost:8080/} 
         }
-        $results = $jobs | Receive-Job -Wait
+        $results = Get-Job | Receive-Job -Wait
         $timer.Stop()
         $timer.Elapsed.TotalSeconds | Should -BeLessThan 50
         $results | ForEach-Object {
