@@ -12,7 +12,8 @@ function ConvertTo-HTTPScriptblock {
             System.Management.Automation.ScriptBlock
     #>
     [CmdletBinding()]
-
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
     [OutputType([System.Management.Automation.ScriptBlock])]
 
     param(
@@ -31,10 +32,10 @@ function ConvertTo-HTTPScriptblock {
 
             try {
                 $output = Invoke-Command -ScriptBlock {
-                    param($request)
+                    param($Request)
 
                     REPLACEWITHSCRIPTBLOCK
-                } -ArgumentList $request
+                } -ArgumentList $Request
             } catch {
                 $status_code = [System.Net.HttpStatusCode]::InternalServerError
                 $content = $_.ToString()
@@ -52,7 +53,7 @@ function ConvertTo-HTTPScriptblock {
             }
 
             $buffer = [Text.Encoding]::UTF8.GetBytes($json_output)
-            
+
             $Response.StatusCode = $status_code
             $Response.ContentType = $content_type
             $Response.ContentLength64 = $buffer.Length
