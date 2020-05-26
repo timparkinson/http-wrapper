@@ -4,6 +4,7 @@ param(
     [ValidateSet(
         'Test',
         'Analyze',
+        'Clean',
         'Build'
     )]
     [string]$Task = 'Test',
@@ -25,6 +26,9 @@ if ($Bootstrap) {
         }
     }
 }
+
+$name = Split-Path -Leaf -Path $PSScriptRoot
+$build_path = Join-Path -Path $PSScriptRoot -ChildPath "build\$name"
 
 switch ($Task) {
     'Test' {
@@ -59,14 +63,15 @@ switch ($Task) {
         }
     }
 
-    'Build' {
-        $build_path = Join-Path -Path $PSScriptRoot -ChildPath 'build'
+    'Clean' {
+        Remove-Item -Recurse -Path $build_path -Force -Confirm:$false
+    }
 
+    'Build' {
+        
         if (-not (Test-Path -Path $build_path)) {
             New-Item -ItemType Directory -Path $build_path
         }
-
-        $name = Split-Path -Leaf -Path $PSScriptRoot
 
         @(
             "$name.psm1"
