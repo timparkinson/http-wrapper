@@ -75,7 +75,7 @@ switch ($Task) {
             "private/"
             "classes/"
         ) | ForEach-Object {
-            Copy-Item -Recurse -Path $_ -Destination $build_path
+            Copy-Item -Recurse -Path (Join-Path -Path $PSScriptRoot -ChildPath $_) -Destination $build_path
         }
     }
 }
