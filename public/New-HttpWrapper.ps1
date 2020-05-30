@@ -6,6 +6,8 @@
             Creates a new HttpWrapper object.
         .PARAMETER Scriptblock
             The scriptblock to wrap.
+        .PARAMETER Module
+            An array of modules to load into the servicing runspace.
         .PARAMETER Port
             The port on which to listen.
         .PARAMETER MaxThread
@@ -25,6 +27,10 @@
         [Parameter(Mandatory=$true)]
         [scriptblock]$Scriptblock,
         [Parameter()]
+        [string[]]$Module = @(
+            'http-wrapper'
+        ),
+        [Parameter()]
         [int]$Port = 8080,
         [Parameter()]
         [int]$MaxThread = 100,
@@ -35,8 +41,12 @@
     begin {}
 
     process {
+        if ($Module -notcontains 'http-wrapper') {
+            $Module += 'http-wrapper'
+        }
+        
         $http_scriptblock = ConvertTo-HttpScriptBlock -ScriptBlock $Scriptblock
-        New-Object -TypeName HttpWrapper -ArgumentList $http_scriptblock, $Port, $MaxThread, $NumListenThread
+        New-Object -TypeName HttpWrapper -ArgumentList $http_scriptblock, $Module, $Port, $MaxThread, $NumListenThread
     }
 
     end {}

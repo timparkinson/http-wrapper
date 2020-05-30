@@ -6,14 +6,17 @@
     hidden [System.Net.HttpListener]$Listener
     hidden [System.Management.Automation.Runspaces.RunspacePool]$RunspacePool
     hidden [string]$Prefix
+    hidden [string[]]$Module
 
     HttpWrapper (
         [scriptblock]$Scriptblock,
+        [string[]]$Module,
         [int]$Port,
         [int]$MaxThread,
         [int]$NumListenThread
     ) {
         $this.Scriptblock = $Scriptblock
+        $this.Module = $Module
         $this.Port = $Port
         $this.MaxThread = $MaxThread
         $this.NumListenThread = $NumListenThread
@@ -21,16 +24,20 @@
 
     HttpWrapper (
         [scriptblock]$Scriptblock,
+        [string[]]$Module,
         [int]$Port
     ) {
         $this.Scriptblock = $Scriptblock
+        $this.Module = $Module
         $this.Port = $Port
     }
 
     HttpWrapper (
-        [scriptblock]$Scriptblock
+        [scriptblock]$Scriptblock,
+        [string[]]$Module
     ) {
         $this.Scriptblock = $Scriptblock
+        $this.Module = $Module
     }
 
     [void] Start (
@@ -42,6 +49,7 @@
 
         Write-Verbose -Message "Setting up runspace pool with max $($this.MaxThread) threads"
         $initial_session_state = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
+        $initial_session_state.ImportPSModule($this.Module)
         $this.RunspacePool = [System.Management.Automation.Runspaces.RunspaceFactory]::CreateRunspacePool($initial_session_state)
         $this.RunspacePool.SetMaxRunspaces($this.MaxThread)
         $this.RunspacePool.Open()
