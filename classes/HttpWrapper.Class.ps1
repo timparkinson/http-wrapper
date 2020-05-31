@@ -3,6 +3,7 @@
     [int]$Port = 8080
     [int]$MaxThread = 100
     [int]$NumListenThread = 10
+    [hashtable]$SharedData
     hidden [System.Net.HttpListener]$Listener
     hidden [System.Management.Automation.Runspaces.RunspacePool]$RunspacePool
     hidden [string]$Prefix
@@ -20,6 +21,7 @@
         $this.Port = $Port
         $this.MaxThread = $MaxThread
         $this.NumListenThread = $NumListenThread
+        $this.SharedData = [hashtable]::Synchronized(@{})
     }
 
     HttpWrapper (
@@ -30,6 +32,7 @@
         $this.Scriptblock = $Scriptblock
         $this.Module = $Module
         $this.Port = $Port
+        $this.SharedData = [hashtable]::Synchronized(@{})
     }
 
     HttpWrapper (
@@ -38,6 +41,7 @@
     ) {
         $this.Scriptblock = $Scriptblock
         $this.Module = $Module
+        $this.SharedData = [hashtable]::Synchronized(@{})
     }
 
     [void] Start (
@@ -67,6 +71,7 @@
             RequestHandler = $request_handler
             RunspacePool = $this.RunspacePool
             Scriptblock = $this.Scriptblock
+            SharedData = $this.SharedData
         }
 
 
@@ -124,7 +129,8 @@
 
             $powershell.AddScript($state.Scriptblock).
                 AddParameter('Request', $context.Request).
-                AddParameter('Response', $context.Response)
+                AddParameter('Response', $context.Response).
+                AddParameter('SharedData', $state.SharedData)
 
             # Execute the work
             $powershell.BeginInvoke() |

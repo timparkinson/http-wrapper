@@ -6,14 +6,17 @@ Describe "Server" {
     $port_basic = 8080
     $port_sleep = 8081
     $port_module = 8082
+    $port_shared = 8083
 
     $server_basic = New-HttpWrapper -Scriptblock {@{'hello'='world'}} -Port $port_basic
     $server_sleep = New-HttpWrapper -Scriptblock {Start-Sleep -Seconds 10; @{'hello'='world'}} -Port $port_sleep
     $server_module = New-HttpWrapper -Scriptblock {(Get-Module).Name} -Port $port_module -Module 'Microsoft.Powershell.Archive'
+    $server_shared = New-HttpWrapper -Scriptblock {@{'hello'=$SharedData.hello}} -Port $port_shared
 
     Start-HttpWrapper -HttpWrapper $server_basic
     Start-HttpWrapper -HttpWrapper $server_sleep
     Start-HttpWrapper -HttpWrapper $server_module
+    Start-HttpWrapper -HttpWrapper $server_shared
     
     It "creates a server" {
         $server_basic | Should -Not -BeNullOrEmpty
@@ -58,14 +61,25 @@ Describe "Server" {
         $result | Should -Contain 'Microsoft.Powershell.Archive'
     }
 
+    It "alows SharedData to be passed" {
+        $server_shared.SharedData.hello = 'worldshared'
+
+        $result = Invoke-RestMethod -Uri "http://localhost:$port_shared/"
+
+        $result.hello | Should -Be 'worldshared'
+        
+    }
+
     It "stops" {
         Stop-HttpWrapper -HttpWrapper $server_basic
         Stop-HttpWrapper -HttpWrapper $server_sleep
         Stop-HttpWrapper -HttpWrapper $server_module
+        Stop-HttpWrapper -HttpWrapper $server_shared
 
         $server_basic.Listener.IsListening | Should -Be $false
         $server_sleep.Listener.IsListening | Should -Be $false
         $server_module.Listener.IsListening | Should -Be $false
+        $server_shared.Listener.IsListening | Should -Be $false
     }
 
 }

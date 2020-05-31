@@ -27,7 +27,9 @@ function ConvertTo-HTTPScriptblock {
                 [System.Net.HttpListenerRequest]
                 $Request,
                 [System.Net.HttpListenerResponse]
-                $Response
+                $Response,
+                [hashtable]
+                $SharedData
             )
 
             try {
