@@ -1,6 +1,9 @@
 # http-wrapper
-Wrap powershell functions for use as a web service.
+
+## What is it?
+
+A small opinionated module to allow powershell code to be served over HTTP.
 
 ## Why re-invent the wheel?
 
-I'm deliberately trying to get away with the minimum possible for my use case and going to make this very heavily opinionated. I'll be borrowing heavily from, but simplifying https://github.com/timparkinson/posh-httpd. I have taken other approaches in the past (DSL + Code generator for running powershell under http://nancyfx.org/). 
+I've had various approaches to doing this in the past, for a few years I've been using a home grown DSL and code generator for the [Nancy Framework](https://nancyfx.org/). This was OK, if a little fragile, but something recently broke and because Nancy is not being maintained anymore I decided to look at options.
