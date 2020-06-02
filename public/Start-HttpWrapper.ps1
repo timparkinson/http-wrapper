@@ -34,12 +34,12 @@ function Start-HttpWrapper {
         If ($Wait) {
             Write-Verbose -Message "HttpWrapper.Listener.IsListening: $($HttpWrapper.Listener.IsListening)"
             Write-Verbose -Message "Waiting for HttpWrapper $($HttpWrapper.Prefix) to finish listening"
-            while ($HttpWrapper.Listener.IsListening) {
+            $stop_on_issue = $false
+            while ($HttpWrapper.Listener.IsListening -and -not $stop_on_issue) {
                 try {
                     Start-Sleep -Seconds $WaitCheckDelay
                 } catch {
-                    Write-Error -Message "Problem waiting, exiting."
-                    break
+                    $stop_on_issue = $true
                 }
             }
             Write-Verbose -Message "HttpWrapper $($HttpWrapper.Prefix) has finished listening"
