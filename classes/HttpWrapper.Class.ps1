@@ -95,7 +95,7 @@
         0..($this.NumListenThread-1) |
             ForEach-Object {
                 $powershell = [System.Management.Automation.PowerShell]::Create()
-                $powershell.RunspacePool = $state.RunspacePool
+                $powershell.Runspace = [RunspaceFactory]::CreateRunspace($initial_session_state).Open()
 
                 $powershell.AddScript($listen_scriptblock).
                     AddParameter('state', $state)
