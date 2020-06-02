@@ -35,7 +35,12 @@ function Start-HttpWrapper {
             Write-Verbose -Message "HttpWrapper.Listener.IsListening: $($HttpWrapper.Listener.IsListening)"
             Write-Verbose -Message "Waiting for HttpWrapper $($HttpWrapper.Prefix) to finish listening"
             while ($HttpWrapper.Listener.IsListening) {
-                Start-Sleep -Seconds $WaitCheckDelay
+                try {
+                    Start-Sleep -Seconds $WaitCheckDelay
+                } catch {
+                    Write-Error -Message "Problem waiting, exiting."
+                    break
+                }
             }
             Write-Verbose -Message "HttpWrapper $($HttpWrapper.Prefix) has finished listening"
         }
