@@ -58,6 +58,7 @@
         $initial_session_state = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
         $initial_session_state.ImportPSModule($this.Module)
         $this.RunspacePool = [System.Management.Automation.Runspaces.RunspaceFactory]::CreateRunspacePool($initial_session_state)
+        $this.RunspacePool.SetMinRunspaces($this.MinThread)
         $this.RunspacePool.SetMaxRunspaces($this.MaxThread)
         $this.RunspacePool.Open()
 
