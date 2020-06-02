@@ -85,6 +85,10 @@
             $state.Listener.BeginGetContext($state.RequestHandler, $state) |
                 Out-Null
 
+            while ($state.Listener.IsListening) {
+                Start-Sleep -Milliseconds 500
+            }
+
         }
 
         Write-Verbose -Message "Starting $($this.NumListenThread) Listen threads"
