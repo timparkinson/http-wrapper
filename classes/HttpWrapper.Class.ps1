@@ -1,6 +1,7 @@
 ﻿class HttpWrapper {
     [scriptblock]$Scriptblock
     [int]$Port = 8080
+    [int]$MinThread = 50
     [int]$MaxThread = 100
     [int]$NumListenThread = 10
     [hashtable]$SharedData
@@ -13,12 +14,14 @@
         [scriptblock]$Scriptblock,
         [string[]]$Module,
         [int]$Port,
+        [int]$MinThread,
         [int]$MaxThread,
         [int]$NumListenThread
     ) {
         $this.Scriptblock = $Scriptblock
         $this.Module = $Module
         $this.Port = $Port
+        $this.MinThread = $MinThread
         $this.MaxThread = $MaxThread
         $this.NumListenThread = $NumListenThread
         $this.SharedData = [hashtable]::Synchronized(@{})

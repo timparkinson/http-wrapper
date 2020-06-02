@@ -33,6 +33,8 @@
         [Parameter()]
         [int]$Port = 8080,
         [Parameter()]
+        [int]$MinThread = 50,
+        [Parameter()]
         [int]$MaxThread = 100,
         [Parameter()]
         [int]$NumListenThread = 10
@@ -46,7 +48,7 @@
         }
         
         $http_scriptblock = ConvertTo-HttpScriptBlock -ScriptBlock $Scriptblock
-        New-Object -TypeName HttpWrapper -ArgumentList $http_scriptblock, $Module, $Port, $MaxThread, $NumListenThread
+        New-Object -TypeName HttpWrapper -ArgumentList $http_scriptblock, $Module, $Port, $MinThread, $MaxThread, $NumListenThread
     }
 
     end {}
