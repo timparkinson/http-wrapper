@@ -82,13 +82,8 @@
         $listen_scriptblock = {
             param($state)
 
-            $result = $state.Listener.BeginGetContext($state.RequestHandler, $state) 
-
-            while ($state.Listener.IsListening) {
-                $result.AsyncWaitHandle.WaitOne()
-
-                $result = $state.Listener.BeginGetContext($state.RequestHandler, $state)
-            }
+            $state.Listener.BeginGetContext($state.RequestHandler, $state) |
+                Out-Null
 
         }
 
