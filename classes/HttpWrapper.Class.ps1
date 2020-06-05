@@ -4,11 +4,13 @@
     [int]$MinThread = 50
     [int]$MaxThread = 100
     [int]$NumListenThread = 10
+    [int]$ListenerTimeout = 500
     [hashtable]$SharedData
     hidden [System.Net.HttpListener]$Listener
     hidden [System.Management.Automation.Runspaces.RunspacePool]$RunspacePool
     hidden [string]$Prefix
     hidden [string[]]$Module
+    hidden [powershell[]]$ListenerRunspace
 
     HttpWrapper (
         [scriptblock]$Scriptblock,
@@ -76,6 +78,7 @@
             RunspacePool = $this.RunspacePool
             Scriptblock = $this.Scriptblock
             SharedData = $this.SharedData
+            ListenerTimeout = $this.ListenerTimeout
         }
 
 
@@ -83,7 +86,7 @@
             param($state)
             
             while ($state.Listener.IsListening) {
-                $state.Listener.BeginGetContext($state.RequestHandler, $state).AsyncWaitHandle.WaitOne();
+                $state.Listener.BeginGetContext($state.RequestHandler, $state).AsyncWaitHandle.WaitOne($state.ListenerTimeout);
             }
 
         }
@@ -92,13 +95,13 @@
         0..($this.NumListenThread-1) |
             ForEach-Object {
                 $powershell = [System.Management.Automation.PowerShell]::Create()
-                $powershell.Runspace = [RunspaceFactory]::CreateRunspace($initial_session_state).Open()
+                $powershell.RunspacePool = $this.RunspacePool
+                $this.ListenerRunspace += $powershell
 
                 $powershell.AddScript($listen_scriptblock).
                     AddParameter('state', $state)
 
-                $powershell.BeginInvoke() |
-                    Out-Null
+                $powershell.BeginInvoke() 
             }
     }
 
@@ -109,8 +112,14 @@
         $this.Listener.Stop()
         $this.Listener.Prefixes.Remove($this.Prefix)
 
+        Write-Verbose -Message "Stopping Listener runspaces"
+        $this.ListenerRunspace |
+            ForEach-Object {
+                $_.Stop()
+            }
+
         Write-Verbose -Message "Pausing"
-        Start-Sleep -Milliseconds 500 
+        Start-Sleep -Milliseconds 600 
 
         Write-Verbose -Message "Closing runspace pool"
         $this.RunspacePool.Close()
