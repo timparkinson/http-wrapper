@@ -81,12 +81,9 @@
 
         $listen_scriptblock = {
             param($state)
-
-            $state.Listener.BeginGetContext($state.RequestHandler, $state) |
-                Out-Null
-
+            
             while ($state.Listener.IsListening) {
-                Start-Sleep -Milliseconds 500
+                $state.Listener.BeginGetContext($state.RequestHandler, $state).AsyncWaitHandle.WaitOne();
             }
 
         }
@@ -126,10 +123,6 @@
             # End Async context
             $state = $Result.AsyncState
             $context = $state.Listener.EndGetContext($Result)
-
-            # Next connection
-            $state.Listener.BeginGetContext($state.RequestHandler, $state) |
-                Out-Null
 
             # Setup work in runspace
             $powershell = [System.Management.Automation.PowerShell]::Create()
