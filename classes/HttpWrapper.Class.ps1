@@ -118,7 +118,11 @@
         Write-Verbose -Message "Stopping Listener runspaces"
         $this.ListenerRunspace |
             ForEach-Object {
-                $_.Stop()
+                try {
+                    $_.Stop()
+                } catch {
+                    # Just swallow any stop errors
+                }
             }
 
         Write-Verbose -Message "Closing runspace pool"
