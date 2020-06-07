@@ -1,6 +1,8 @@
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
-$sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
-. "$here\$sut"
+BeforeAll {
+    $here = Split-Path -Parent $PSCommandPath
+    $sut = (Split-Path -Leaf $PSCommandPath) -replace '\.Tests\.', '.'
+    . "$here\$sut"
+}
 
 Describe "Restart-HttpWrapper" {
 }

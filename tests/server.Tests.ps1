@@ -1,8 +1,9 @@
-﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
-$module_path = Split-Path -Parent -Path $here
-Import-Module "$module_path/http-wrapper.psd1"
-
-Describe "Server" {
+﻿
+BeforeAll {
+    $here = Split-Path -Parent $PSCommandPath
+    $module_path = Split-Path -Parent -Path $here
+    Import-Module "$module_path/http-wrapper.psd1"
+    
     $port_basic = 8080
     $port_sleep = 8081
     $port_module = 8082
@@ -20,6 +21,8 @@ Describe "Server" {
     Start-HttpWrapper -HttpWrapper $server_module
     Start-HttpWrapper -HttpWrapper $server_shared
     Start-HttpWrapper -HttpWrapper $server_error
+}
+Describe "Server" {
     
     It "creates a server" {
         $server_basic | Should -Not -BeNullOrEmpty
