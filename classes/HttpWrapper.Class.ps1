@@ -112,14 +112,14 @@
         $this.Listener.Stop()
         $this.Listener.Prefixes.Remove($this.Prefix)
 
+        Write-Verbose -Message "Pausing"
+        Start-Sleep -Milliseconds 600 
+
         Write-Verbose -Message "Stopping Listener runspaces"
         $this.ListenerRunspace |
             ForEach-Object {
                 $_.Stop()
             }
-
-        Write-Verbose -Message "Pausing"
-        Start-Sleep -Milliseconds 600 
 
         Write-Verbose -Message "Closing runspace pool"
         $this.RunspacePool.Close()
