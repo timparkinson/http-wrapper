@@ -1,5 +1,6 @@
 ﻿class HttpWrapper {
     [scriptblock]$Scriptblock
+    [scriptblock]$BootstrapScriptblock
     [int]$Port = 8080
     [int]$MinThread = 50
     [int]$MaxThread = 100
@@ -15,6 +16,7 @@
     HttpWrapper (
         [scriptblock]$Scriptblock,
         [string[]]$Module,
+        [scriptblock]$BootstrapScriptblock,
         [int]$Port,
         [int]$MinThread,
         [int]$MaxThread,
@@ -23,6 +25,7 @@
         $this.Scriptblock = $Scriptblock
         $this.Module = $Module
         $this.Port = $Port
+        $this.BootstrapScriptblock = $BootstrapScriptblock
         $this.MinThread = $MinThread
         $this.MaxThread = $MaxThread
         $this.NumListenThread = $NumListenThread
@@ -32,20 +35,24 @@
     HttpWrapper (
         [scriptblock]$Scriptblock,
         [string[]]$Module,
+        [scriptblock]$BootstrapScriptblock,
         [int]$Port
     ) {
         $this.Scriptblock = $Scriptblock
         $this.Module = $Module
+        $this.BootstrapScriptblock = $BootstrapScriptblock
         $this.Port = $Port
         $this.SharedData = [hashtable]::Synchronized(@{})
     }
 
     HttpWrapper (
         [scriptblock]$Scriptblock,
-        [string[]]$Module
+        [string[]]$Module,
+        [scriptblock]$BootstrapScriptblock
     ) {
         $this.Scriptblock = $Scriptblock
         $this.Module = $Module
+        $this.BootstrapScriptblock = $BootstrapScriptblock
         $this.SharedData = [hashtable]::Synchronized(@{})
     }
 
@@ -68,6 +75,9 @@
         $method = [HttpWrapper].GetMethod('HandleRequest')
         $request_handler = [System.Delegate]::CreateDelegate([System.AsyncCallback], $null, $method)
 
+        Write-Verbose -Message "Running bootstrapper"
+        Invoke-Command -ScriptBlock $this.BootstrapScriptblock -ArgumentList $this.SharedData
+
         Write-Verbose -Message "Starting listener"
         $this.listener.Start()
 
@@ -80,7 +90,6 @@
             SharedData = $this.SharedData
             ListenerTimeout = $this.ListenerTimeout
         }
-
 
         $listen_scriptblock = {
             param($state)

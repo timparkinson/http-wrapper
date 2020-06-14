@@ -31,6 +31,8 @@
             'http-wrapper'
         ),
         [Parameter()]
+        [scriptblock]$BootstrapScriptblock = {},
+        [Parameter()]
         [int]$Port = 8080,
         [Parameter()]
         [int]$MinThread = 50,
@@ -48,7 +50,8 @@
         }
         
         $http_scriptblock = ConvertTo-HttpScriptBlock -ScriptBlock $Scriptblock
-        New-Object -TypeName HttpWrapper -ArgumentList $http_scriptblock, $Module, $Port, $MinThread, $MaxThread, $NumListenThread
+        $bootstrap_scriptblock = ConvertTo-BootstrapScriptBlock -ScriptBlock $BootstrapScriptblock
+        New-Object -TypeName HttpWrapper -ArgumentList $http_scriptblock, $Module, $bootstrap_scriptblock, $Port, $MinThread, $MaxThread, $NumListenThread
     }
 
     end {}
