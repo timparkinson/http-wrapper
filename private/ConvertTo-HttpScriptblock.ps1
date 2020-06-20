@@ -34,10 +34,8 @@ function ConvertTo-HTTPScriptblock {
 
             try {
                 $output = Invoke-Command -ScriptBlock {
-                    param($Request)
-
                     REPLACEWITHSCRIPTBLOCK
-                } -ArgumentList $Request
+                } 
             } catch {
                 $status_code = [System.Net.HttpStatusCode]::InternalServerError
                 $content = $_.ToString()

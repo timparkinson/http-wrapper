@@ -9,18 +9,21 @@ BeforeAll {
     $port_module = 8082
     $port_shared = 8083
     $port_error = 8084
+    $port_request_response = 8085
 
     $server_basic = New-HttpWrapper -Scriptblock {@{'hello'='world'}} -Port $port_basic
     $server_sleep = New-HttpWrapper -Scriptblock {Start-Sleep -Seconds 10; @{'hello'='world'}} -Port $port_sleep -NumListenThread 10
     $server_module = New-HttpWrapper -Scriptblock {(Get-Module).Name} -Port $port_module -Module 'Microsoft.Powershell.Archive'
     $server_shared = New-HttpWrapper -Scriptblock {@{'hello'=$SharedData.hello}} -Port $port_shared -BootstrapScriptblock {$SharedData.bootstrap = 'banana'}
     $server_error = New-HttpWrapper -Scriptblock {Write-Error -Message 'oh noes' -ErrorAction Stop} -Port $port_error
+    $server_request_response = New-HttpWrapper -Scriptblock {@{'request' = $Request; 'response' = $Response}} -Port $port_request_response
 
     Start-HttpWrapper -HttpWrapper $server_basic
     Start-HttpWrapper -HttpWrapper $server_sleep
     Start-HttpWrapper -HttpWrapper $server_module
     Start-HttpWrapper -HttpWrapper $server_shared
     Start-HttpWrapper -HttpWrapper $server_error
+    Start-HttpWrapper -HttpWrapper $server_request_response
 }
 Describe "Server" {
     
@@ -34,6 +37,7 @@ Describe "Server" {
         $server_module.Listener.IsListening | Should -Be $true
         $server_shared.Listener.IsListening | Should -Be $true
         $server_error.Listener.IsListening | Should -Be $true
+        $server_request_response.Listener.IsListening | Should -Be $true
     }
 
     It "gets a result" {
@@ -84,6 +88,14 @@ Describe "Server" {
         $server_shared.SharedData.bootstrap | Should -Be 'banana'
     }
 
+    It "accesses request/response" {
+        $result = Invoke-RestMethod -Uri "http://localhost:$port_request_response/"
+
+        $result.request | Should -Not -BeNullOrEmpty
+        $result.response | Should -Not -BeNullOrEmpty
+
+    }
+
     It "handles errors" {
         {Invoke-RestMethod -Uri "http://localhost:$port_error/"} | 
             Should -Throw
@@ -96,12 +108,14 @@ Describe "Server" {
         Stop-HttpWrapper -HttpWrapper $server_module
         Stop-HttpWrapper -HttpWrapper $server_shared
         Stop-HttpWrapper -HttpWrapper $server_error
+        Stop-HttpWrapper -HttpWrapper $server_request_response
 
         $server_basic.Listener.IsListening | Should -Be $false
         $server_sleep.Listener.IsListening | Should -Be $false
         $server_module.Listener.IsListening | Should -Be $false
         $server_shared.Listener.IsListening | Should -Be $false
         $server_error.Listener.IsListening | Should -Be $false
+        $server_request_response.Listener.IsListening | Should -Be $false
     }
 
 }
