@@ -52,22 +52,22 @@ Describe "Server" {
         $result.hello | Should -Be 'world'
     }
 
-    # It "handles multiple concurrent connections" {
-    #     $timer = [System.Diagnostics.Stopwatch]::new()
+    It "handles multiple concurrent connections" {
+        $timer = [System.Diagnostics.Stopwatch]::new()
 
-    #     $timer.Start()
+        $timer.Start()
         
-    #     $results = 1..6 | ForEach-Object -Parallel {
-    #         #Start-Job -ScriptBlock {Invoke-RestMethod -Uri "http://localhost:$($using:port_sleep)/"}
-    #        Invoke-RestMethod -Uri "http://localhost:$($using:port_sleep)/"
-    #     }
-    #     #$results = Get-Job | Receive-Job -Wait
-    #     $timer.Stop()
-    #     $timer.Elapsed.TotalSeconds | Should -BeLessThan 50
-    #     $results | ForEach-Object {
-    #         $_.hello | Should -Be 'world'
-    #     }
-    # }
+        $results = 1..6 | ForEach-Object -Parallel {
+            Start-Job -ScriptBlock {Invoke-RestMethod -Uri "http://localhost:8081/"}
+           #Invoke-RestMethod -Uri "http://localhost:$($using:port_sleep)/"
+        }
+        $results = Get-Job | Receive-Job -Wait
+        $timer.Stop()
+        $timer.Elapsed.TotalSeconds | Should -BeLessThan 50
+        $results | ForEach-Object {
+            $_.hello | Should -Be 'world'
+        }
+    }
 
     It "loads modules" {
         $result = Invoke-RestMethod -Uri "http://localhost:$port_module/"
@@ -93,13 +93,11 @@ Describe "Server" {
 
         $result.request | Should -Not -BeNullOrEmpty
         $result.response | Should -Not -BeNullOrEmpty
-
     }
 
     It "handles errors" {
         {Invoke-RestMethod -Uri "http://localhost:$port_error/"} | 
             Should -Throw
-
     }
 
     It "stops" {
