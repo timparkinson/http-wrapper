@@ -19,7 +19,8 @@ BeforeAll {
             }
 
             'sleep' {
-                Start-Sleep -Seconds 10; @{'hello'='world'}
+                Start-Sleep -Seconds 10 
+                @{'hello'='world'}
             }
 
             'module' {
@@ -72,8 +73,8 @@ Describe "Server" {
 
         $timer.Start()
         
-        $results = 1..6 | ForEach-Object -Parallel {
-            Start-Job -ScriptBlock {Invoke-RestMethod -Uri "http://localhost:8081/sleep"}
+        $results = 1..6 | ForEach-Object  {
+            Start-Job -ScriptBlock {Invoke-RestMethod -Uri "http://localhost:8080/sleep"}
            #Invoke-RestMethod -Uri "http://localhost:$($using:port_sleep)/"
         }
         $results = Get-Job | Receive-Job -Wait
