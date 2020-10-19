@@ -32,6 +32,12 @@ function ConvertTo-HTTPScriptblock {
                 $SharedData
             )
 
+            # Generate a call ID
+            $call_id = (New-Guid).Guid
+            $output_headers = @{
+                'X-Call-Id' = $call_id
+            }
+
             try {
                 $output = Invoke-Command -ScriptBlock {
                     REPLACEWITHSCRIPTBLOCK
@@ -53,6 +59,8 @@ function ConvertTo-HTTPScriptblock {
             }
 
             $buffer = [Text.Encoding]::UTF8.GetBytes($json_output)
+
+            $Response.Headers = $output_headers
 
             $Response.StatusCode = $status_code
             $Response.ContentType = $content_type
