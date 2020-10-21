@@ -14,6 +14,8 @@
             The maximum number of threads to use.
         .PARAMETER NumListenThread
             The number of dispatcher threads to use.
+        .PARAMETER Hostname
+            The hostname to use when adding the listener prefix.
         .OUTPUTS
             [HttpWrapper]
         .EXAMPLE
@@ -39,7 +41,9 @@
         [Parameter()]
         [int]$MaxThread = 100,
         [Parameter()]
-        [int]$NumListenThread = 10
+        [int]$NumListenThread = 10,
+        [Parameter()]
+        [string]$Hostname = '+'
     )
 
     begin {}
@@ -51,7 +55,7 @@
         
         $http_scriptblock = ConvertTo-HttpScriptBlock -ScriptBlock $Scriptblock
         $bootstrap_scriptblock = ConvertTo-BootstrapScriptBlock -ScriptBlock $BootstrapScriptblock
-        New-Object -TypeName HttpWrapper -ArgumentList $http_scriptblock, $Module, $bootstrap_scriptblock, $Port, $MinThread, $MaxThread, $NumListenThread
+        New-Object -TypeName HttpWrapper -ArgumentList $http_scriptblock, $Module, $bootstrap_scriptblock, $Port, $MinThread, $MaxThread, $NumListenThread, $Hostname
     }
 
     end {}

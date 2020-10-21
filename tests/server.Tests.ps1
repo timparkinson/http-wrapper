@@ -5,6 +5,7 @@ BeforeAll {
     Import-Module "$module_path/http-wrapper.psd1"
     
     $port = 8080
+    $hostname = 'localhost'
 
     $scriptblock = {
         if ($Request.Url.AbsolutePath -match '\/(?<route>\w+)') {
@@ -42,7 +43,7 @@ BeforeAll {
        
     }
     
-    $server = New-HttpWrapper -Scriptblock $scriptblock -Port $port -NumListenThread 10 -Module 'Microsoft.Powershell.Archive' -BootstrapScriptblock {$SharedData.bootstrap = 'banana'}
+    $server = New-HttpWrapper -Scriptblock $scriptblock -Port $port -NumListenThread 10 -Module 'Microsoft.Powershell.Archive' -BootstrapScriptblock {$SharedData.bootstrap = 'banana'} -Hostname $hostname
     
     Start-HttpWrapper -HttpWrapper $server
 }

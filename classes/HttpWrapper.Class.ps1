@@ -6,12 +6,34 @@
     [int]$MaxThread = 100
     [int]$NumListenThread = 10
     [int]$ListenerTimeout = 500
+    [string]$Hostname = '+'
     [hashtable]$SharedData
     hidden [System.Net.HttpListener]$Listener
     hidden [System.Management.Automation.Runspaces.RunspacePool]$RunspacePool
     hidden [string]$Prefix
     hidden [string[]]$Module
     hidden [powershell[]]$ListenerRunspace
+
+    HttpWrapper (
+        [scriptblock]$Scriptblock,
+        [string[]]$Module,
+        [scriptblock]$BootstrapScriptblock,
+        [int]$Port,
+        [int]$MinThread,
+        [int]$MaxThread,
+        [int]$NumListenThread,
+        [string]$Hostname
+    ) {
+        $this.Scriptblock = $Scriptblock
+        $this.Module = $Module
+        $this.Port = $Port
+        $this.BootstrapScriptblock = $BootstrapScriptblock
+        $this.MinThread = $MinThread
+        $this.MaxThread = $MaxThread
+        $this.NumListenThread = $NumListenThread
+        $this.Hostname = $Hostname
+        $this.SharedData = [hashtable]::Synchronized(@{})
+    }
 
     HttpWrapper (
         [scriptblock]$Scriptblock,
@@ -59,7 +81,7 @@
     [void] Start (
     ) {
         Write-Verbose -Message "Setting up listener $($this.Prefix)"
-        $this.Prefix = "http://+:$($this.Port)/"
+        $this.Prefix = "http://$($this.Hostname):$($this.Port)/"
         $this.listener = New-Object -TypeName System.Net.HttpListener
         $this.Listener.Prefixes.Add($this.Prefix)
 
