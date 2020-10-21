@@ -35,7 +35,7 @@ $build_path = Join-Path -Path $PSScriptRoot -ChildPath "build\$name"
 switch ($Task) {
     'Test' {
         Import-Module Pester
-        Invoke-Pester -CI
+        Invoke-Pester -CI -Output Detailed
     }
 
     'Analyze' {
