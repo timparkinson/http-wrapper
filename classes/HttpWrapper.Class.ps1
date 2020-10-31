@@ -5,7 +5,6 @@
     [int]$MinThread = 50
     [int]$MaxThread = 100
     [int]$NumListenThread = 10
-    [int]$ListenerTimeout = 500
     [string]$Hostname = '+'
     [hashtable]$SharedData
     hidden [System.Net.HttpListener]$Listener
@@ -110,14 +109,17 @@
             RunspacePool = $this.RunspacePool
             Scriptblock = $this.Scriptblock
             SharedData = $this.SharedData
-            ListenerTimeout = $this.ListenerTimeout
         }
 
         $listen_scriptblock = {
             param($state)
             
             while ($state.Listener.IsListening) {
-                $state.Listener.BeginGetContext($state.RequestHandler, $state).AsyncWaitHandle.WaitOne($state.ListenerTimeout);
+                $result = $state.Listener.BeginGetContext($state.RequestHandler, $state)
+                $handle = $result.AsyncWaitHandle
+                $handle.WaitOne()
+                $handle.Close()
+                $result.Close()
             }
 
         }
@@ -126,7 +128,7 @@
         0..($this.NumListenThread-1) |
             ForEach-Object {
                 $powershell = [System.Management.Automation.PowerShell]::Create()
-                $powershell.RunspacePool = $this.RunspacePool
+                $powershell.Runspace = [RunspaceFactory]::CreateRunspace($initial_session_state).Open()
                 $this.ListenerRunspace += $powershell
 
                 $powershell.AddScript($listen_scriptblock).
@@ -180,6 +182,10 @@
             # Execute the work
             $powershell.BeginInvoke() |
                 Out-Null
+
+            # Close this powershell
+            $powershell.Close()
+
         } catch {
             # A final context is triggered on stop. This is a blunt way of trapping it.
         }
