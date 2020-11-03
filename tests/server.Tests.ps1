@@ -112,6 +112,13 @@ Describe "Server" {
         $result.response | Should -Not -BeNullOrEmpty
     }
 
+    It "sends an X-Call-Id header" {
+        $result = Invoke-WebRequest -Uri "http://localhost:$port/basic"
+
+        $result.Headers['X-Call-Id'] | 
+            Should -Not -BeNullOrEmpty
+    }
+
     It "handles errors" {
         {Invoke-RestMethod -Uri "http://localhost:$port/error"} | 
             Should -Throw
