@@ -152,7 +152,7 @@
         $this.ListenerRunspace |
             ForEach-Object {
                 try {
-                    $_.Stop()
+                    $_.Dispose()
                 } catch {
                     # Just swallow any stop errors
                 }
