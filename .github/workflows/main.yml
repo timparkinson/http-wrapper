@@ -17,6 +17,9 @@ jobs:
 
         steps:
         - uses: actions/checkout@v2
+        - name: version
+          shell: pwsh
+          run: -Command "\$PSVersionTable"
         - name: Test
           shell: pwsh
           run: ./tasks.ps1 -Task Test -Bootstrap
