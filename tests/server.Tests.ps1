@@ -130,4 +130,22 @@ Describe "Server" {
         $server.Listener.IsListening | Should -Be $false
     }
 
+    It "starts again" {
+        Start-HttpWrapper -HttpWrapper $server 
+
+        $server.Listener.IsListening | Should -Be $true
+    }
+
+    It "gets a result after stop/start" {
+        $result = Invoke-RestMethod -Uri "http://localhost:$port/basic"
+
+        $result.hello | Should -Be 'world'
+    }
+
+    It "stops again" {
+        Stop-HttpWrapper -HttpWrapper $server
+    
+        $server.Listener.IsListening | Should -Be $false
+    }
+
 }
