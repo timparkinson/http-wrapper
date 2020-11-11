@@ -142,7 +142,11 @@
     ) {
 
         Write-Verbose -Message "Stopping listener"
-        $this.Listener.Stop()
+        try {
+            $this.Listener.Stop()
+        } catch {
+            # Sometimes get an InvalidOperationException: Stack Empty
+        }
         $this.Listener.Prefixes.Remove($this.Prefix)
 
         Write-Verbose -Message "Pausing"
