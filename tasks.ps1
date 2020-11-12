@@ -13,7 +13,7 @@ param(
 )
 
 if ($Bootstrap) {
-    Remove-Module -Force -Name PackageManagement
+    Remove-Module -Force -Name PackageManagement -ErrorAction SilentlyContinue
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 
     Install-Module PowerShellGet -SkipPublisherCheck -Force -Confirm:$false
     Get-PackageProvider -Name Nuget -ForceBootstrap |
