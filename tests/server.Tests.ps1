@@ -75,7 +75,7 @@ Describe "Server" {
         $timer.Start()
         
         $results = 1..6 | ForEach-Object  {
-            Start-Job -ScriptBlock {Invoke-RestMethod -Uri "http://localhost:8080/sleep"}
+            Start-Job -ScriptBlock {Invoke-RestMethod -Uri "http://localhost:$port/sleep"}
            #Invoke-RestMethod -Uri "http://localhost:$($using:port_sleep)/"
         }
         $results = Get-Job | Receive-Job -Wait
