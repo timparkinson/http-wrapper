@@ -13,19 +13,19 @@ param(
 )
 
 if ($Bootstrap) {
-    Remove-Module -Force -Name PackageManagement -ErrorAction SilentlyContinue
+    Remove-Module -Force -Name PackageManagement -ErrorAction SilentlyContinue -Verbose
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 
-    Install-Module PowerShellGet -SkipPublisherCheck -Force -Confirm:$false
-    Get-PackageProvider -Name Nuget -ForceBootstrap |
+    Install-Module PowerShellGet -SkipPublisherCheck -Force -Confirm:$false -Verbose
+    Get-PackageProvider -Name Nuget -ForceBootstrap -Verbose |
         Out-Null
-    Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+    Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -Verbose
 
     $dependencies = Get-Content -Path "$PSScriptRoot/dependencies.json" -Raw |
         ConvertFrom-Json
 
     foreach ($dependency in $dependencies) {
         if (-not (Get-Module -Name $dependency.Name)) {
-            Install-Module -Force -Name $dependency.Name -Repository $dependency.Repository -Scope $dependency.Scope
+            Install-Module -Force -Name $dependency.Name -Repository $dependency.Repository -Scope $dependency.Scope -Verbose
         }
     }
 }
