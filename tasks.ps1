@@ -13,8 +13,9 @@ param(
 )
 
 if ($Bootstrap) {
+    Remove-Module -Force -Name PackageManagement
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 
-    Install-Module PowerShellGet -RequiredVersion 2.2.4 -SkipPublisherCheck -Force -Confirm:$false
+    Install-Module PowerShellGet -SkipPublisherCheck -Force -Confirm:$false
     Get-PackageProvider -Name Nuget -ForceBootstrap |
         Out-Null
     Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
