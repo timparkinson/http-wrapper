@@ -159,7 +159,9 @@ Describe "Server" {
     }
 
     AfterAll {
-        Remove-Variable -Name server
+        Write-Warning "removing server variable"
+        Remove-Variable -Name server -Force
+        Write-Warning "removed server variable"
     }
 
 }
