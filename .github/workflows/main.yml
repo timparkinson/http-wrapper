@@ -28,6 +28,9 @@ jobs:
         
         steps:
         - uses: actions/checkout@v2
+        - name: version
+          shell: pwsh
+          run: $PSVersionTable
         - name: testpowershell
           shell: powershell
           run: ./tasks.ps1 -Task Test -Bootstrap
