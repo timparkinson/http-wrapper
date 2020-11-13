@@ -37,7 +37,6 @@ switch ($Task) {
     'Test' {
         Import-Module Pester
         Invoke-Pester -CI -Output Detailed
-        exit
     }
 
     'Analyze' {
