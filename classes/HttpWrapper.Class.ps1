@@ -156,8 +156,6 @@
         $this.ListenerRunspace |
             ForEach-Object {
                 try {
-                    $_.EndInvoke($_.Runspace) | 
-                        Out-Null
                     $_.Runspace.Dispose()
                     $_.Dispose()
                 } catch {
