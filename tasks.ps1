@@ -37,6 +37,8 @@ switch ($Task) {
     'Test' {
         Import-Module Pester
         Invoke-Pester -CI -Output Detailed
+        get-variable 
+        $error | fl *
     }
 
     'Analyze' {
