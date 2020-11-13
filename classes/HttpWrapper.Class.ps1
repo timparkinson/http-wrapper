@@ -146,6 +146,7 @@
             $this.Listener.Stop()
         } catch {
             # Sometimes get an InvalidOperationException: Stack Empty
+            Write-Warning "Exception stopping listener: $_"
         }
         $this.Listener.Prefixes.Remove($this.Prefix)
 
@@ -156,6 +157,7 @@
         $this.ListenerRunspace |
             ForEach-Object {
                 try {
+                    $_.Stop()
                     $_.Runspace.Dispose()
                     $_.Dispose()
                 } catch {
