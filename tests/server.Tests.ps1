@@ -4,51 +4,56 @@ BeforeAll {
     $module_path = Split-Path -Parent -Path $here
     Import-Module "$module_path/http-wrapper.psd1"
     
-    $port = 8080
-    $hostname = 'localhost'
-
-    $scriptblock = {
-        if ($Request.Url.AbsolutePath -match '\/(?<route>\w+)') {
-            $route = $matches.route
-        } else {
-            Write-Error -Message "No route found" -ErrorAction Stop
-        }
-        
-        switch ($route) {
-            'basic' {
-                @{'hello'='world'}
-            }
-
-            'sleep' {
-                Start-Sleep -Seconds 10 
-                @{'hello'='world'}
-            }
-
-            'module' {
-                (Get-Module).Name
-            }
-
-            'shared' {
-                @{'hello'=$SharedData.hello}
-            }
-
-            'error' {
-                Write-Error -Message 'oh noes' -ErrorAction Stop
-            }
-
-            'requestresponse' {
-                @{'request' = $Request; 'response' = $Response}
-            }
-        }
-       
-    }
-    
-    $server = New-HttpWrapper -Scriptblock $scriptblock -Port $port -NumListenThread 10 -Module 'Microsoft.Powershell.Archive' -BootstrapScriptblock {$SharedData.bootstrap = 'banana'} -Hostname $hostname
-    
-    Start-HttpWrapper -HttpWrapper $server
 }
+
 Describe "Server" {
     
+    BeforeAll {
+        $port = 8080
+        $hostname = 'localhost'
+    
+        $scriptblock = {
+            if ($Request.Url.AbsolutePath -match '\/(?<route>\w+)') {
+                $route = $matches.route
+            } else {
+                Write-Error -Message "No route found" -ErrorAction Stop
+            }
+            
+            switch ($route) {
+                'basic' {
+                    @{'hello'='world'}
+                }
+    
+                'sleep' {
+                    Start-Sleep -Seconds 10 
+                    @{'hello'='world'}
+                }
+    
+                'module' {
+                    (Get-Module).Name
+                }
+    
+                'shared' {
+                    @{'hello'=$SharedData.hello}
+                }
+    
+                'error' {
+                    Write-Error -Message 'oh noes' -ErrorAction Stop
+                }
+    
+                'requestresponse' {
+                    @{'request' = $Request; 'response' = $Response}
+                }
+            }
+           
+        }
+        
+        $server = New-HttpWrapper -Scriptblock $scriptblock -Port $port -NumListenThread 10 -Module 'Microsoft.Powershell.Archive' -BootstrapScriptblock {$SharedData.bootstrap = 'banana'} -Hostname $hostname
+        
+        Start-HttpWrapper -HttpWrapper $server
+    }
+
+
     It "creates a server" {
         $server | Should -Not -BeNullOrEmpty
     }
@@ -71,13 +76,18 @@ Describe "Server" {
 
     It "handles multiple concurrent connections" {
         $timer = [System.Diagnostics.Stopwatch]::new()
-
         $timer.Start()
         
-        $results = 1..6 | ForEach-Object  {
-            Start-Job -ScriptBlock {Invoke-RestMethod -Uri "http://localhost:8080/sleep"}
-           #Invoke-RestMethod -Uri "http://localhost:$($using:port_sleep)/"
+        if ($PSVersionTable.PSEdition -eq 'Core') {
+            $results = 1..6 | ForEach-Object -Parallel {
+                Invoke-RestMethod -Uri "http://localhost:8080/sleep"
+            }
+        } else {
+            $results = 1..6 | ForEach-Object  {
+                Start-Job -ScriptBlock {Invoke-RestMethod -Uri "http://localhost:8080/sleep"}
+            }
         }
+        #start-sleep -Milliseconds 600
         $results = Get-Job | Receive-Job -Wait
         $timer.Stop()
         $timer.Elapsed.TotalSeconds | Should -BeLessThan 50
@@ -146,6 +156,10 @@ Describe "Server" {
         Stop-HttpWrapper -HttpWrapper $server
     
         $server.Listener.IsListening | Should -Be $false
+    }
+
+    AfterAll {
+        Remove-Variable -Name server
     }
 
 }
