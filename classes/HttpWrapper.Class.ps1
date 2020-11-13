@@ -143,13 +143,12 @@
 
         Write-Verbose -Message "Stopping listener"
         try {
-            $this.Listener.Stop()
+            $this.Listener.Close()
         } catch {
             # Sometimes get an InvalidOperationException: Stack Empty
             Write-Warning "Exception stopping listener: $_"
         }
-        $this.Listener.Prefixes.Remove($this.Prefix)
-
+        
         Write-Verbose -Message "Pausing"
         Start-Sleep -Milliseconds 600 
 
@@ -157,7 +156,6 @@
         $this.ListenerRunspace |
             ForEach-Object {
                 try {
-                    $_.Stop()
                     $_.Runspace.Dispose()
                     $_.Dispose()
                 } catch {
