@@ -35,6 +35,12 @@
         [Parameter()]
         [scriptblock]$BootstrapScriptblock = {},
         [Parameter()]
+        [scriptblock]$HealthScriptblock = {
+            'OK'
+        },
+        [Parameter()]
+        [string]$HealthPath = '^/healthz(\/)?$',
+        [Parameter()]
         [int]$Port = 8080,
         [Parameter()]
         [int]$MinThread = 50,
@@ -53,9 +59,13 @@
             $Module += 'http-wrapper'
         }
         
-        $http_scriptblock = ConvertTo-HttpScriptBlock -ScriptBlock $Scriptblock
-        $bootstrap_scriptblock = ConvertTo-BootstrapScriptBlock -ScriptBlock $BootstrapScriptblock
-        New-Object -TypeName HttpWrapper -ArgumentList $http_scriptblock, $Module, $bootstrap_scriptblock, $Port, $MinThread, $MaxThread, $NumListenThread, $Hostname
+        $bootstrap_scriptblock = ConvertTo-BootstrapScriptblock -ScriptBlock $BootstrapScriptblock
+        $health_scriptblock = ConvertTo-HealthScriptblock -Scriptblock $HealthScriptblock
+        $http_scriptblock = ConvertTo-HttpScriptblock -ScriptBlock $Scriptblock 
+        $wrapper = New-Object -TypeName HttpWrapper -ArgumentList $http_scriptblock, $Module, $bootstrap_scriptblock, $Port, $MinThread, $MaxThread, $NumListenThread, $Hostname
+        $wrapper.SharedData.HealthPath = $HealthPath
+        $wrapper.SharedData.HealthScriptblock = $HealthScriptblock
+        $wrapper
     }
 
     end {}

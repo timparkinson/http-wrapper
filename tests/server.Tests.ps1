@@ -134,6 +134,19 @@ Describe "Server" {
             Should -Throw
     }
 
+    It "doesn't error on the next call" {
+        $result = Invoke-RestMethod -Uri "http://localhost:$port/basic"
+
+        $result.hello | Should -Be 'world'
+    }
+
+    It "handles health requests" {
+        $result = Invoke-RestMethod -Uri "http://localhost:$port/healthz"
+
+        $result |
+            Should -Be 'OK'
+    }
+
     It "stops" {
         Stop-HttpWrapper -HttpWrapper $server
     

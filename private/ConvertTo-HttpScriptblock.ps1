@@ -7,7 +7,7 @@ function ConvertTo-HTTPScriptblock {
         .PARAMETER ScriptBlock
             The scriptblock to convert for HTTPS usage
         .EXAMPLE
-            $new_scriptblock = ConvertTo-HTTPCScriptblock -ScriptBlock {Get-Process}
+            $new_scriptblock = ConvertTo-HTTPScriptblock -ScriptBlock {Get-Process}
         .OUTPUTS
             System.Management.Automation.ScriptBlock
     #>
@@ -32,17 +32,27 @@ function ConvertTo-HTTPScriptblock {
                 $SharedData
             )
 
-            # Generate a call ID
-            $call_id = (New-Guid).Guid       
+            if ($Request.Url.AbsolutePath -match $SharedData.HealthPath) {
+                try {
+                    $output = Invoke-Command -ScriptBlock $SharedData.HealthScriptblock
+                } catch {
+                    $status_code = [System.Net.HttpStatusCode]::InternalServerError
+                    $content = $_.ToString()
+                    $content_type = ''
+                }
+            } else {
+                # Generate a call ID
+                $call_id = (New-Guid).Guid       
 
-            try {
-                $output = Invoke-Command -ScriptBlock {
-                    REPLACEWITHSCRIPTBLOCK
-                } 
-            } catch {
-                $status_code = [System.Net.HttpStatusCode]::InternalServerError
-                $content = $_.ToString()
-                $content_type = ''
+                try {
+                    $output = Invoke-Command -ScriptBlock {
+                        REPLACEWITHSCRIPTBLOCK
+                    } 
+                } catch {
+                    $status_code = [System.Net.HttpStatusCode]::InternalServerError
+                    $content = $_.ToString()
+                    $content_type = ''
+                }
             }
 
             if (-not $status_code) {
@@ -66,6 +76,7 @@ function ConvertTo-HTTPScriptblock {
             $Response.OutputStream.Write($buffer, 0, $buffer.Length)
 
             $Response.Close()
+            Remove-Variable -Name output, json_output, buffer, status_code, content_type
         }
     }
 
