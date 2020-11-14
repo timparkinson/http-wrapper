@@ -12,6 +12,7 @@
     hidden [string]$Prefix
     hidden [string[]]$Module
     hidden [powershell[]]$ListenerRunspace
+    hidden [System.Threading.ManualResetEvent]$StopListeners
 
     HttpWrapper (
         [scriptblock]$Scriptblock,
@@ -101,6 +102,7 @@
 
         Write-Verbose -Message "Starting listener"
         $this.listener.Start()
+        $this.StopListeners = New-Object -TypeName System.Threading.ManualResetEvent -ArgumentList $false
 
         Write-Verbose "Setting state to pass to delegate"
         $state = @{
@@ -109,6 +111,7 @@
             RunspacePool = $this.RunspacePool
             Scriptblock = $this.Scriptblock
             SharedData = $this.SharedData
+            StopListeners = $this.StopListeners
         }
 
         $listen_scriptblock = {
@@ -117,7 +120,7 @@
             while ($state.Listener.IsListening) {
                 $result = $state.Listener.BeginGetContext($state.RequestHandler, $state)
                 $handle = $result.AsyncWaitHandle
-                $handle.WaitOne()
+                [System.Threading.WaitHandle]::WaitAny(@($state.StopListeners, $handle))
                 $handle.Close()
                 $result.Close()
             }
@@ -143,7 +146,11 @@
 
         Write-Verbose -Message "Stopping listener"
         try {
+            $this.Listener.Stop()
             $this.Listener.Close()
+            if (-not ($this.StopListeners.Set())) {
+                Write-Error -Message "Error signalling listener thread stop"
+            }
         } catch {
             # Sometimes get an InvalidOperationException: Stack Empty
             Write-Warning "Exception stopping listener: $_"
