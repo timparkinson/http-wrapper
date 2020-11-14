@@ -64,7 +64,7 @@
         $http_scriptblock = ConvertTo-HttpScriptblock -ScriptBlock $Scriptblock 
         $wrapper = New-Object -TypeName HttpWrapper -ArgumentList $http_scriptblock, $Module, $bootstrap_scriptblock, $Port, $MinThread, $MaxThread, $NumListenThread, $Hostname
         $wrapper.SharedData.HealthPath = $HealthPath
-        $wrapper.SharedData.HealthScriptblock = $HealthScriptblock
+        $wrapper.SharedData.HealthScriptblock = $health_scriptblock
         $wrapper
     }
 
