@@ -11,6 +11,7 @@ BeforeAll {
             & "netsh http add sslcert ipport=0.0.0.0:8443 certhash=$($cert.ThumbPrint) appid={00112233-4455-6677-8899-AABBCCDDEEFF}"
             $cert_enroll = $true
         } catch {
+            Write-Warning -Message "Certificate enrollment failed - HTTPS will not be tested: $_"
             $cert_enroll = $false
         }
     }
@@ -201,8 +202,11 @@ Describe "Server" {
 
     AfterAll {
         Remove-Variable -Name server -Force
-        Stop-HttpWrapper -HttpWrapper $https_server
-        Remove-Variable -Name https_server -Force
+
+        if ($cert_enroll) {
+            Stop-HttpWrapper -HttpWrapper $https_server
+            Remove-Variable -Name https_server -Force
+        }
     }
 
 }
