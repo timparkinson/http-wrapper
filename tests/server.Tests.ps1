@@ -8,7 +8,7 @@ BeforeAll {
         # Generate certificate and import it
         try {
             $cert = New-SelfSignedCertificate -DnsName http-wrapper-test -CertStoreLocation cert:\LocalMachine\My -NotAfter (Get-Date).AddYears(10)
-            Invoke-Expression "netsh http add sslcert ipport=0.0.0.0:8443 certhash=$($cert.ThumbPrint) appid={00112233-4455-6677-8899-AABBCCDDEEFF}"
+            Invoke-Expression "netsh http add sslcert ipport=0.0.0.0:8443 certhash=$($cert.ThumbPrint) appid=`{00112233-4455-6677-8899-AABBCCDDEEFF`}"
             $cert_enroll = $true
         } catch {
             Write-Warning -Message "Certificate enrollment failed - HTTPS will not be tested: $_"
