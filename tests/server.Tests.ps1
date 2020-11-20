@@ -4,6 +4,17 @@ BeforeAll {
     $module_path = Split-Path -Parent -Path $here
     Import-Module "$module_path/http-wrapper.psd1"
     
+    if ($PSVersionTable.PSEdition -eq 'Desktop') {
+        # Generate certificate and import it
+        try {
+            $cert = New-SelfSignedCertificate -DnsName http-wrapper-test -CertStoreLocation cert:\LocalMachine\My -NotAfter (Get-Date).AddYears(10)
+            & "netsh http add sslcert ipport=0.0.0.0:8443 certhash=$($cert.ThumbPrint) appid={00112233-4455-6677-8899-AABBCCDDEEFF}"
+            $cert_enroll = $true
+        } catch {
+            $cert_enroll = $false
+        }
+    }
+
 }
 
 Describe "Server" {
@@ -51,6 +62,15 @@ Describe "Server" {
         $server = New-HttpWrapper -Scriptblock $scriptblock -Port $port -NumListenThread 10 -Module 'Microsoft.Powershell.Archive' -BootstrapScriptblock {$SharedData.bootstrap = 'banana'} -Hostname $hostname
         
         Start-HttpWrapper -HttpWrapper $server
+
+        if ($cert_enroll) {
+            $https_server = New-HttpWrapper -Scheme 'https' -Port '8443' -Scriptblock {
+                'https_test'
+            }
+
+            Start-HttpWrapper -HttpWrapper $https_server
+        }
+
     }
 
 
@@ -171,8 +191,18 @@ Describe "Server" {
         $server.Listener.IsListening | Should -Be $false
     }
 
+    if ($cert_enroll) {
+        It "has an HTTPS endpoint" {
+            $result = Invoke-RestMethod -Uri "https://localhost:8443/" -SkipCertificateCheck
+
+            $result | Should -Be "https_test"
+        }
+    }
+
     AfterAll {
         Remove-Variable -Name server -Force
+        Stop-HttpWrapper -HttpWrapper $https_server
+        Remove-Variable -Name https_server -Force
     }
 
 }

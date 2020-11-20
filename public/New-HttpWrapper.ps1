@@ -49,7 +49,13 @@
         [Parameter()]
         [int]$NumListenThread = 10,
         [Parameter()]
-        [string]$Hostname = '+'
+        [string]$Hostname = '+',
+        [Parameter()]
+        [ValidateSet(
+            'http',
+            'https'
+        )]
+        [string]$Scheme = 'http'
     )
 
     begin {}
@@ -62,7 +68,12 @@
         $bootstrap_scriptblock = ConvertTo-BootstrapScriptblock -ScriptBlock $BootstrapScriptblock
         $health_scriptblock = ConvertTo-HealthScriptblock -Scriptblock $HealthScriptblock
         $http_scriptblock = ConvertTo-HttpScriptblock -ScriptBlock $Scriptblock 
-        $wrapper = New-Object -TypeName HttpWrapper -ArgumentList $http_scriptblock, $Module, $bootstrap_scriptblock, $Port, $MinThread, $MaxThread, $NumListenThread, $Hostname
+        $wrapper = New-Object -TypeName HttpWrapper -ArgumentList $http_scriptblock, $Module, $bootstrap_scriptblock, $Port, $MinThread, $MaxThread, $NumListenThread, $Hostname, $Scheme
+        
+        if ($Scheme -eq 'https') {
+            Write-Warning -Message "HTTPS scheme requires certificate binding."
+        }
+
         $wrapper.SharedData.HealthPath = $HealthPath
         $wrapper.SharedData.HealthScriptblock = $health_scriptblock
         $wrapper

@@ -6,6 +6,7 @@
     [int]$MaxThread = 100
     [int]$NumListenThread = 10
     [string]$Hostname = '+'
+    [string]$Scheme = 'http'
     [hashtable]$SharedData
     hidden [System.Net.HttpListener]$Listener
     hidden [System.Management.Automation.Runspaces.RunspacePool]$RunspacePool
@@ -13,6 +14,29 @@
     hidden [string[]]$Module
     hidden [powershell[]]$ListenerRunspace
     hidden [System.Threading.ManualResetEvent]$StopListeners
+
+    HttpWrapper (
+        [scriptblock]$Scriptblock,
+        [string[]]$Module,
+        [scriptblock]$BootstrapScriptblock,
+        [int]$Port,
+        [int]$MinThread,
+        [int]$MaxThread,
+        [int]$NumListenThread,
+        [string]$Hostname,
+        [string]$Scheme
+    ) {
+        $this.Scriptblock = $Scriptblock
+        $this.Module = $Module
+        $this.Port = $Port
+        $this.BootstrapScriptblock = $BootstrapScriptblock
+        $this.MinThread = $MinThread
+        $this.MaxThread = $MaxThread
+        $this.NumListenThread = $NumListenThread
+        $this.Hostname = $Hostname
+        $this.Scheme = $Scheme
+        $this.SharedData = [hashtable]::Synchronized(@{})
+    }
 
     HttpWrapper (
         [scriptblock]$Scriptblock,
@@ -80,8 +104,9 @@
 
     [void] Start (
     ) {
+        
+        $this.Prefix = "$($this.Scheme)://$($this.Hostname):$($this.Port)/"
         Write-Verbose -Message "Setting up listener $($this.Prefix)"
-        $this.Prefix = "http://$($this.Hostname):$($this.Port)/"
         $this.listener = New-Object -TypeName System.Net.HttpListener
         $this.Listener.Prefixes.Add($this.Prefix)
 
