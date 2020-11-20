@@ -192,8 +192,9 @@ Describe "Server" {
         $server.Listener.IsListening | Should -Be $false
     }
 
-    if ($cert_enroll) {
-        It "has an HTTPS endpoint" {
+    
+    It "has an HTTPS endpoint" {
+        if ($cert_enroll) {
             $result = Invoke-RestMethod -Uri "https://localhost:8443/" -SkipCertificateCheck
 
             $result | Should -Be "https_test"
