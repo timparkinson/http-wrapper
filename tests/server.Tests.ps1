@@ -72,6 +72,8 @@ Describe "Server" {
             Start-HttpWrapper -HttpWrapper $https_server
         }
 
+        $forbidden_server = New-HttpWrapper -Scriptblock {'NOPE'} -Port 8081 -AuthenticationScheme None -Hostname $Hostname
+        Start-HttpWrapper -HttpWrapper $forbidden_server
     }
 
 
@@ -227,6 +229,18 @@ Describe "Server" {
 
             $result | Should -Be "https_test"
         }
+
+    }
+
+    It "allows authentication scheme changes" {
+        try { 
+            $result = Invoke-WebRequest -uri http://localhost:8081/ 
+        } catch {
+            $result = $_.Exception.Response
+        }
+        
+        $result.StatusCode |
+            Should -Be 403
     }
 
     AfterAll {
@@ -236,6 +250,9 @@ Describe "Server" {
             Stop-HttpWrapper -HttpWrapper $https_server
             Remove-Variable -Name https_server -Force
         }
+
+        Stop-HttpWrapper -HttpWrapper $forbidden_server
+        Remove-Variable forbidden_server
     }
 
 }

@@ -16,6 +16,10 @@
             The number of dispatcher threads to use.
         .PARAMETER Hostname
             The hostname to use when adding the listener prefix.
+        .PARAMETER Scheme
+            Use http/https.
+        .PARAMETER AuthenticationScheme
+            Set an authentication scheme.
         .OUTPUTS
             [HttpWrapper]
         .EXAMPLE
@@ -55,7 +59,9 @@
             'http',
             'https'
         )]
-        [string]$Scheme = 'http'
+        [string]$Scheme = 'http',
+        [Parameter()]
+        [System.Net.AuthenticationSchemes]$AuthenticationScheme = [System.Net.AuthenticationSchemes]::Anonymous
     )
 
     begin {}
@@ -76,6 +82,9 @@
 
         $wrapper.SharedData.HealthPath = $HealthPath
         $wrapper.SharedData.HealthScriptblock = $health_scriptblock
+
+        $wrapper.AuthenticationSchemes = $AuthenticationScheme
+
         $wrapper
     }
 

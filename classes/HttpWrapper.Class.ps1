@@ -14,6 +14,7 @@
     hidden [string[]]$Module
     hidden [powershell[]]$ListenerRunspace
     hidden [System.Threading.ManualResetEvent]$StopListeners
+    hidden [System.Net.AuthenticationSchemes]$AuthenticationSchemes = [System.Net.AuthenticationSchemes]::Anonymous
 
     HttpWrapper (
         [scriptblock]$Scriptblock,
@@ -109,6 +110,9 @@
         Write-Verbose -Message "Setting up listener $($this.Prefix)"
         $this.listener = New-Object -TypeName System.Net.HttpListener
         $this.Listener.Prefixes.Add($this.Prefix)
+
+        Write-Verbose "Setting listener authentication to $($this.AuthenticationSchemes.ToString())"
+        $this.Listener.AuthenticationSchemes = $this.AuthenticationSchemes
 
         Write-Verbose -Message "Setting up runspace pool with max $($this.MaxThread) threads"
         $initial_session_state = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
