@@ -233,14 +233,16 @@ Describe "Server" {
     }
 
     It "allows authentication scheme changes" {
-        try { 
-            $result = Invoke-WebRequest -uri http://localhost:8081/ 
-        } catch {
-            $result = $_.Exception.Response
-        }
+        if ($PSVersionTable.PSEdition -eq 'Deskop' -or $IsWindows) {
+            try { 
+                $result = Invoke-WebRequest -uri http://localhost:8081/ 
+            } catch {
+                $result = $_.Exception.Response
+            }
         
-        $result.StatusCode |
-            Should -Be 403
+            $result.StatusCode |
+                Should -Be 403
+        }
     }
 
     AfterAll {
