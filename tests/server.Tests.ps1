@@ -150,6 +150,13 @@ Describe "Server" {
             Should -Not -BeNullOrEmpty
     }
 
+    It "returns the same X-Call-Id header when present" {
+        $result = Invoke-WebRequest -Uri "http://localhost:$port/basic" -Headers @{'X-Call-Id' = 'TESTCALLID'}
+
+        $result.Headers['X-Call-Id'] |
+            Should -Be 'TESTCALLID'
+    }
+
     It "handles errors" {
         {Invoke-RestMethod -Uri "http://localhost:$port/error"} | 
             Should -Throw

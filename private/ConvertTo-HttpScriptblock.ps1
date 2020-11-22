@@ -41,9 +41,13 @@ function ConvertTo-HTTPScriptblock {
                     $content_type = ''
                 }
             } else {
-                # Generate a call ID
-                $call_id = (New-Guid).Guid       
-
+                # Incoming Headers
+                if (-not $Request.Headers['X-Call-Id']) {
+                    $call_id = (New-Guid).Guid
+                } else {
+                    $call_id = $Request.Headers['X-Call-Id']
+                }
+                      
                 try {
                     $output = Invoke-Command -ScriptBlock {
                         REPLACEWITHSCRIPTBLOCK
@@ -76,7 +80,7 @@ function ConvertTo-HTTPScriptblock {
             $Response.OutputStream.Write($buffer, 0, $buffer.Length)
 
             $Response.Close()
-            Remove-Variable -Name output, json_output, buffer, status_code, content_type
+            Remove-Variable -Name output, json_output, buffer, status_code, content_type, call_id
         }
     }
 
