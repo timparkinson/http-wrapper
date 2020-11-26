@@ -151,7 +151,7 @@
                 $handle = $result.AsyncWaitHandle
                 [System.Threading.WaitHandle]::WaitAny(@($state.StopListeners, $handle))
                 $handle.Close()
-                $result.Dispose()
+                #$result.Dispose()
             }
 
         }
@@ -224,9 +224,6 @@
             # Execute the work
             $powershell.BeginInvoke() |
                 Out-Null
-
-            # Close this powershell
-            $powershell.Dispose()
 
         } catch {
             # A final context is triggered on stop. This is a blunt way of trapping it.
