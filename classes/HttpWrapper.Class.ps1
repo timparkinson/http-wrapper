@@ -226,7 +226,7 @@
                 Out-Null
 
             # Close this powershell
-            $powershell.Close()
+            $powershell.Dispose()
 
         } catch {
             # A final context is triggered on stop. This is a blunt way of trapping it.
