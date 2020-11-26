@@ -151,7 +151,7 @@
                 $handle = $result.AsyncWaitHandle
                 [System.Threading.WaitHandle]::WaitAny(@($state.StopListeners, $handle))
                 $handle.Close()
-                $result.Close()
+                $result.Dispose()
             }
 
         }
