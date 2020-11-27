@@ -12,8 +12,6 @@
             The port on which to listen.
         .PARAMETER MaxThread
             The maximum number of threads to use.
-        .PARAMETER NumListenThread
-            The number of dispatcher threads to use.
         .PARAMETER Hostname
             The hostname to use when adding the listener prefix.
         .PARAMETER Scheme
@@ -51,8 +49,6 @@
         [Parameter()]
         [int]$MaxThread = 100,
         [Parameter()]
-        [int]$NumListenThread = 10,
-        [Parameter()]
         [string]$Hostname = '+',
         [Parameter()]
         [ValidateSet(
@@ -74,7 +70,7 @@
         $bootstrap_scriptblock = ConvertTo-BootstrapScriptblock -ScriptBlock $BootstrapScriptblock
         $health_scriptblock = ConvertTo-HealthScriptblock -Scriptblock $HealthScriptblock
         $http_scriptblock = ConvertTo-HttpScriptblock -ScriptBlock $Scriptblock 
-        $wrapper = New-Object -TypeName HttpWrapper -ArgumentList $http_scriptblock, $Module, $bootstrap_scriptblock, $Port, $MinThread, $MaxThread, $NumListenThread, $Hostname, $Scheme
+        $wrapper = New-Object -TypeName HttpWrapper -ArgumentList $http_scriptblock, $Module, $bootstrap_scriptblock, $Port, $MinThread, $MaxThread, $Hostname, $Scheme
         
         if ($Scheme -eq 'https') {
             Write-Warning -Message "HTTPS scheme requires certificate binding."

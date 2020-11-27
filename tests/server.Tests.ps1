@@ -60,7 +60,7 @@ Describe "Server" {
            
         }
         
-        $server = New-HttpWrapper -Scriptblock $scriptblock -Port $port -NumListenThread 10 -Module 'Microsoft.Powershell.Archive' -BootstrapScriptblock {$SharedData.bootstrap = 'banana'} -Hostname $hostname
+        $server = New-HttpWrapper -Scriptblock $scriptblock -Port $port  -Module 'Microsoft.Powershell.Archive' -BootstrapScriptblock {$SharedData.bootstrap = 'banana'} -Hostname $hostname
         
         Start-HttpWrapper -HttpWrapper $server
 
