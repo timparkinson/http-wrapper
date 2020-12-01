@@ -56,6 +56,10 @@ Describe "Server" {
                 'requestresponse' {
                     @{'request' = $Request; 'response' = $Response}
                 }
+
+                'postdata' {
+                    $post_data
+                }
             }
            
         }
@@ -168,6 +172,12 @@ Describe "Server" {
         $result = Invoke-RestMethod -Uri "http://localhost:$port/basic"
 
         $result.hello | Should -Be 'world'
+    }
+
+    It "handles posted data" {
+        $string = 'I was posted'
+        $result = Invoke-RestMethod -Uri "http://localhost:$port/postdata" -Method POST -Body ($string | ConvertTo-Json)
+        $result | Should -Be $string
     }
 
     It "handles health requests" {

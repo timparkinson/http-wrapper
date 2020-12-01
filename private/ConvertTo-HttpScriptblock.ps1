@@ -47,6 +47,16 @@ function ConvertTo-HTTPScriptblock {
                 } else {
                     $call_id = $Request.Headers['X-Call-Id']
                 }
+
+                # POSTed data
+                if ($Request.HasEntityBody) {
+                    $raw_post_data = (New-Object -TypeName System.IO.StreamReader -ArgumentList $Request.InputStream, $Request.ContentEncoding).ReadToEnd()
+                    $post_data = $raw_post_data | 
+                        ConvertFrom-Json -ErrorAction SilentlyContinue
+                    #Remove-Variable -Name raw_post_data
+                } else {
+                    $post_data = $null
+                }
                       
                 try {
                     $output = Invoke-Command -ScriptBlock {
@@ -80,7 +90,7 @@ function ConvertTo-HTTPScriptblock {
             $Response.OutputStream.Write($buffer, 0, $buffer.Length)
 
             $Response.Close()
-            Remove-Variable -Name output, json_output, buffer, status_code, content_type, call_id
+            Remove-Variable -Name output, json_output, buffer, status_code, content_type, call_id, post_data
         }
     }
 
