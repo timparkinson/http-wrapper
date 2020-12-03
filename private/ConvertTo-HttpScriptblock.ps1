@@ -29,7 +29,9 @@ function ConvertTo-HTTPScriptblock {
                 [System.Net.HttpListenerResponse]
                 $Response,
                 [hashtable]
-                $SharedData
+                $SharedData,
+                [System.Security.Principal.IIdentity]
+                $Identity
             )
 
             if ($Request.Url.AbsolutePath -match $SharedData.HealthPath) {

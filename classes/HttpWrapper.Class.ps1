@@ -209,7 +209,8 @@
             $powershell.AddScript($state.Scriptblock, $true).
                 AddParameter('Request', $context.Request).
                 AddParameter('Response', $context.Response).
-                AddParameter('SharedData', $state.SharedData)
+                AddParameter('SharedData', $state.SharedData).
+                AddParameter('Identity', $context.Identity)
 
             # Execute the work
             $result = $powershell.BeginInvoke()
