@@ -30,8 +30,8 @@ function ConvertTo-HTTPScriptblock {
                 $Response,
                 [hashtable]
                 $SharedData,
-                [System.Security.Principal.IIdentity]
-                $Identity
+                [System.Security.Principal.IPrincipal]
+                $Principal
             )
 
             if ($Request.Url.AbsolutePath -match $SharedData.HealthPath) {

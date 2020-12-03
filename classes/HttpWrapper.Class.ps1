@@ -210,7 +210,7 @@
                 AddParameter('Request', $context.Request).
                 AddParameter('Response', $context.Response).
                 AddParameter('SharedData', $state.SharedData).
-                AddParameter('Identity', $context.Identity)
+                AddParameter('Principal', $context.User)
 
             # Execute the work
             $result = $powershell.BeginInvoke()
